@@ -3,6 +3,7 @@
   <img src="https://img.shields.io/badge/React-18-blue?style=for-the-badge&logo=react" alt="React">
   <img src="https://img.shields.io/badge/Gemini-3-orange?style=for-the-badge&logo=google" alt="Gemini">
   <img src="https://img.shields.io/badge/MCP-Integrated-success?style=for-the-badge" alt="MCP">
+  <img src="https://img.shields.io/badge/License-MIT-brightgreen?style=for-the-badge&logo=open-source-initiative&logoColor=white" alt="OSI Approved License">
   
   <br/>
   
@@ -173,5 +174,5 @@ Returns a comprehensive JSON object containing:
 ---
 <div align="center">
   <i>Built for the GenAI Hackathon</i><br>
-  Available under the <a href="LICENSE">MIT License</a>
+  This project is certified open source and available under the <strong>OSI-approved <a href="LICENSE">MIT License</a></strong>.
 </div>

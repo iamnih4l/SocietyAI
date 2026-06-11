@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { Play, Activity, TrendingUp, AlertTriangle, Users, Sparkles, Zap } from 'lucide-react';
 
-const API_URL = import.meta.env.PROD ? '/api/simulate' : 'http://localhost:8000/api/simulate';
+const API_URL = import.meta.env.PROD ? '/_/backend/api/simulate' : 'http://localhost:8000/api/simulate';
 
 const Dashboard = () => {
   const [content, setContent] = useState('');

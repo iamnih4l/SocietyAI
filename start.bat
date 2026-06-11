@@ -4,7 +4,7 @@ echo Starting Society Simulator (Hackathon Build)
 echo ==========================================
 echo.
 echo Starting Backend (FastAPI + MCP)...
-start cmd /k "title Backend Server && cd backend && .\venv\Scripts\activate && fastapi dev main.py"
+start cmd /k "title Backend Server && cd backend && .\venv\Scripts\activate && uvicorn main:app --reload --port 8000"
 
 echo Starting Frontend (React + Vite)...
 start cmd /k "title Frontend Dashboard && cd frontend && npm run dev"

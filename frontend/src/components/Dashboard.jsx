@@ -31,7 +31,7 @@ const Dashboard = () => {
   return (
     <div className="dashboard-container">
       <header className="header">
-        <h1>Society Simulator Agent</h1>
+        <h1>SocietyAI</h1>
         <p style={{ color: 'var(--text-secondary)' }}>Predict how society will react to your content before publishing.</p>
       </header>
 

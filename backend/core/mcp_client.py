@@ -1,5 +1,6 @@
 import os
 from pymongo import MongoClient
+import certifi
 from core.config import MONGODB_URI
 
 class TrendClient:
@@ -12,7 +13,8 @@ class TrendClient:
         try:
             # Connect synchronously since serverless functions are ephemeral
             # and pymongo's default MongoClient is synchronous.
-            self.client = MongoClient(MONGODB_URI)
+            if not self.client:
+                self.client = MongoClient(MONGODB_URI, tlsCAFile=certifi.where())
             self.db = self.client.society_simulator
             self.collection = self.db.trends
         except Exception as e:

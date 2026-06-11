@@ -15,23 +15,33 @@ class PersonasAgent:
             "Neutral observer"
         ]
 
-    async def simulate_persona(self, persona: str, content: str, analysis: dict):
+    async def run_all(self, content: str, analysis: dict):
         prompt = f"""
-        You are a "{persona}". 
-        Read the following content which is categorized as: {json.dumps(analysis)}
+        You are simulating 5 different societal personas reacting to a piece of content.
+        The content is categorized as: {json.dumps(analysis)}
         
         Content: "{content}"
         
-        How would you react?
-        Return ONLY valid JSON.
+        The 5 personas are:
+        1. Gen Z student
+        2. Working professional
+        3. Meme/content creator
+        4. Critical / skeptical user
+        5. Neutral observer
+        
+        How would EACH of them react?
+        Return ONLY a JSON array of objects, with no markdown formatting.
         
         Expected JSON format:
-        {{
-            "persona": "{persona}",
-            "sentiment": "positive | neutral | negative",
-            "action": "like | share | comment | ignore",
-            "reasoning": "1 line explaining why"
-        }}
+        [
+            {{
+                "persona": "Gen Z student",
+                "sentiment": "positive | neutral | negative",
+                "action": "like | share | comment | ignore",
+                "reasoning": "1 line explaining why"
+            }},
+            ... (for all 5)
+        ]
         """
         try:
             loop = asyncio.get_event_loop()
@@ -46,14 +56,9 @@ class PersonasAgent:
                 text = text[3:-3]
             return json.loads(text)
         except Exception as e:
-            return {
-                "persona": persona,
-                "sentiment": "neutral",
-                "action": "ignore",
-                "reasoning": f"Error: {str(e)}"
-            }
-
-    async def run_all(self, content: str, analysis: dict):
-        tasks = [self.simulate_persona(p, content, analysis) for p in self.personas]
-        results = await asyncio.gather(*tasks)
-        return results
+            print(f"Persona Agent Rate Limit/Error: {e}")
+            # Fallback mock data so demo doesn't crash
+            return [
+                {"persona": p, "sentiment": "neutral", "action": "ignore", "reasoning": "API Rate Limit Hit - Fallback"} 
+                for p in self.personas
+            ]

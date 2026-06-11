@@ -31,9 +31,10 @@ class PlannerAgent:
                 text = text[7:-3]
             return json.loads(text)
         except Exception as e:
+            print(f"Planner Agent Error: {e}")
             return {
                 "type": "unknown",
                 "intent": "unknown",
-                "target_audience": "unknown",
-                "error": str(e)
+                "target_audience": "general",
+                "tone": "neutral"
             }

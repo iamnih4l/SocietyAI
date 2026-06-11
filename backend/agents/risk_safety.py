@@ -23,11 +23,11 @@ class RiskSafetyAgent:
             "safety_flags": ["flag 1", "flag 2"]
         }}
         """
-        response = self.client.models.generate_content(
-            model=self.model,
-            contents=prompt
-        )
         try:
+            response = self.client.models.generate_content(
+                model=self.model,
+                contents=prompt
+            )
             text = response.text.strip()
             if text.startswith("```json"):
                 text = text[7:-3]

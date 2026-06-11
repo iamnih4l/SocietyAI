@@ -40,11 +40,11 @@ class TrendIntelligenceAgent:
             "behavioral_insights": ["insight 1", "insight 2"]
         }}
         """
-        response = self.client.models.generate_content(
-            model=self.model,
-            contents=prompt
-        )
         try:
+            response = self.client.models.generate_content(
+                model=self.model,
+                contents=prompt
+            )
             text = response.text.strip()
             if text.startswith("```json"):
                 text = text[7:-3]

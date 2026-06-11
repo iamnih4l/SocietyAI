@@ -26,11 +26,11 @@ class OptimizationAgent:
             "optimized_content": "The newly improved version of the content."
         }}
         """
-        response = self.client.models.generate_content(
-            model=self.model,
-            contents=prompt
-        )
         try:
+            response = self.client.models.generate_content(
+                model=self.model,
+                contents=prompt
+            )
             text = response.text.strip()
             if text.startswith("```json"):
                 text = text[7:-3]

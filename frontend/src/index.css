@@ -320,6 +320,25 @@ ul li::before {
   background: rgba(8, 47, 73, 0.8);
 }
 
+.node-database {
+  border: 2px solid var(--warning);
+  box-shadow: 0 0 15px rgba(245, 158, 11, 0.3);
+  background: rgba(69, 26, 3, 0.8);
+}
+
+.node-engine {
+  border: 2px solid #d946ef; /* Fuchsia */
+  box-shadow: 0 0 25px rgba(217, 70, 239, 0.4), inset 0 0 10px rgba(217, 70, 239, 0.2);
+  background: linear-gradient(135deg, rgba(74, 4, 78, 0.9) 0%, rgba(134, 25, 143, 0.8) 100%);
+  font-size: 1.1rem;
+}
+
+.node-score {
+  border: 2px solid #fbbf24; /* Amber */
+  box-shadow: 0 0 20px rgba(251, 191, 36, 0.3);
+  background: rgba(69, 26, 3, 0.9);
+}
+
 .node-title {
   font-weight: 600;
   margin-bottom: 5px;

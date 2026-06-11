@@ -1,99 +1,165 @@
 import React, { useMemo } from 'react';
-import { ReactFlow, Background, Controls } from '@xyflow/react';
+import { ReactFlow, Background, Controls, Handle, Position } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 
-// Custom Node Components
-const CentralNode = ({ data }) => (
+// --- CUSTOM NODES ---
+
+const InputNode = ({ data }) => (
   <div className="custom-node node-central">
-    <div className="node-title">Original Content</div>
+    <div className="node-title">Raw Content</div>
     <div className="node-desc" style={{ color: 'white', marginTop: '10px' }}>{data.label}</div>
-    <div style={{ fontSize: '0.8rem', marginTop: '10px', color: 'var(--accent-color)' }}>
-      {data.scores.virality_score}% Viral Potential
+    <Handle type="source" position={Position.Right} style={{ background: '#6366f1' }} />
+  </div>
+);
+
+const DatabaseNode = ({ data }) => (
+  <div className="custom-node node-database">
+    <div className="node-title">MCP Trend Database</div>
+    <div className="node-desc">Historical Viral Patterns</div>
+    <div style={{ fontSize: '0.75rem', marginTop: '10px', color: '#fcd34d', textAlign: 'left' }}>
+      {data.trends.slice(0, 2).map((t, i) => (
+        <div key={i}>• {t.substring(0, 30)}...</div>
+      ))}
     </div>
+    <Handle type="source" position={Position.Right} style={{ background: '#f59e0b' }} />
+  </div>
+);
+
+const EngineNode = ({ data }) => (
+  <div className="custom-node node-engine">
+    <Handle type="target" position={Position.Left} id="in" style={{ background: '#d946ef' }} />
+    <div className="node-title">Master Agent Engine</div>
+    <div className="node-desc">Societal Analysis Core</div>
+    <div style={{ fontSize: '0.75rem', marginTop: '10px', color: '#fbcfe8', textAlign: 'left' }}>
+      <div><strong>Intent:</strong> {data.analysis.intent}</div>
+      <div><strong>Tone:</strong> {data.analysis.tone}</div>
+      <div><strong>Audience:</strong> {data.analysis.target_audience}</div>
+    </div>
+    <Handle type="source" position={Position.Right} id="out" style={{ background: '#d946ef' }} />
   </div>
 );
 
 const PersonaNode = ({ data }) => (
   <div className={`custom-node node-persona-${data.sentiment}`}>
+    <Handle type="target" position={Position.Left} style={{ background: data.color }} />
     <div className="node-title">{data.persona}</div>
     <div className="node-desc">{data.action.toUpperCase()}</div>
+    <Handle type="source" position={Position.Right} style={{ background: data.color }} />
   </div>
 );
 
-const TrendNode = ({ data }) => (
-  <div className="custom-node node-trend">
-    <div className="node-title">Viral Trend Insight</div>
-    <div className="node-desc">{data.label}</div>
+const ScoreNode = ({ data }) => (
+  <div className="custom-node node-score">
+    <Handle type="target" position={Position.Left} style={{ background: '#fbbf24' }} />
+    <div className="node-title">{data.label}</div>
+    <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'white', marginTop: '5px' }}>
+      {data.value}
+    </div>
   </div>
 );
 
 const nodeTypes = {
-  central: CentralNode,
+  input: InputNode,
+  database: DatabaseNode,
+  engine: EngineNode,
   persona: PersonaNode,
-  trend: TrendNode,
+  score: ScoreNode,
 };
+
+// --- GRAPH COMPONENT ---
 
 const SimulationGraph = ({ results, content }) => {
   const { nodes, edges } = useMemo(() => {
     const initialNodes = [];
     const initialEdges = [];
 
-    // Central Node
+    // STAGE 1: INPUTS (X: 0)
     initialNodes.push({
-      id: 'center',
-      type: 'central',
-      position: { x: 400, y: 300 },
-      data: { label: content.substring(0, 50) + (content.length > 50 ? '...' : ''), scores: results.scores },
+      id: 'input',
+      type: 'input',
+      position: { x: 0, y: 150 },
+      data: { label: content.substring(0, 50) + (content.length > 50 ? '...' : '') },
     });
 
-    // Persona Nodes
-    const radius = 280;
+    initialNodes.push({
+      id: 'database',
+      type: 'database',
+      position: { x: 0, y: 400 },
+      data: { trends: results.mcp_trend_insights.similar_viral_patterns || [] },
+    });
+
+    // STAGE 2: ENGINE (X: 350)
+    initialNodes.push({
+      id: 'engine',
+      type: 'engine',
+      position: { x: 350, y: 250 },
+      data: { analysis: results.content_analysis },
+    });
+
+    // Connect Inputs to Engine
+    initialEdges.push({
+      id: 'edge-input-engine', source: 'input', target: 'engine', animated: true,
+      style: { stroke: '#6366f1' }
+    });
+    initialEdges.push({
+      id: 'edge-db-engine', source: 'database', target: 'engine', animated: true,
+      style: { stroke: '#f59e0b' }
+    });
+
+    // STAGE 3: PERSONAS (X: 750)
     const numPersonas = results.persona_reactions.length;
+    const startY = 50;
+    const spacingY = 120;
+
     results.persona_reactions.forEach((reaction, index) => {
-      // Calculate position in an orbit (lower half)
-      const angle = (Math.PI / (numPersonas + 1)) * (index + 1);
+      const pId = `persona-${index}`;
+      const color = reaction.sentiment === 'positive' ? '#10b981' : reaction.sentiment === 'negative' ? '#ef4444' : '#94a3b8';
+      
       initialNodes.push({
-        id: `persona-${index}`,
+        id: pId,
         type: 'persona',
-        position: {
-          x: 400 + Math.cos(angle) * radius,
-          y: 300 + Math.sin(angle) * (radius * 0.8),
-        },
-        data: reaction,
+        position: { x: 750, y: startY + (index * spacingY) },
+        data: { ...reaction, color },
       });
 
+      // Engine to Persona
       initialEdges.push({
-        id: `edge-center-persona-${index}`,
-        source: 'center',
-        target: `persona-${index}`,
-        animated: true,
-        style: { stroke: reaction.sentiment === 'positive' ? 'var(--success)' : reaction.sentiment === 'negative' ? 'var(--danger)' : 'var(--text-secondary)' },
+        id: `edge-engine-${pId}`, source: 'engine', target: pId, animated: true,
+        style: { stroke: '#d946ef' }
       });
+
+      // Persona to Scores (Stage 4)
+      if (reaction.action === 'share' || reaction.action === 'like') {
+        initialEdges.push({
+          id: `edge-${pId}-virality`, source: pId, target: 'score-virality', animated: true, style: { stroke: color, opacity: 0.5 }
+        });
+        initialEdges.push({
+          id: `edge-${pId}-engagement`, source: pId, target: 'score-engagement', animated: true, style: { stroke: color, opacity: 0.5 }
+        });
+      } else if (reaction.action === 'comment') {
+        initialEdges.push({
+          id: `edge-${pId}-engagement`, source: pId, target: 'score-engagement', animated: true, style: { stroke: color, opacity: 0.5 }
+        });
+        if (reaction.sentiment === 'negative') {
+          initialEdges.push({
+            id: `edge-${pId}-controversy`, source: pId, target: 'score-controversy', animated: true, style: { stroke: color, opacity: 0.5 }
+          });
+        }
+      }
     });
 
-    // Trend Nodes
-    const trends = [...(results.mcp_trend_insights.similar_viral_patterns || []), ...(results.mcp_trend_insights.engagement_observations || [])].slice(0, 3);
-    const numTrends = trends.length;
-    trends.forEach((trend, index) => {
-      // Upper half orbit
-      const angle = Math.PI + (Math.PI / (numTrends + 1)) * (index + 1);
-      initialNodes.push({
-        id: `trend-${index}`,
-        type: 'trend',
-        position: {
-          x: 400 + Math.cos(angle) * radius * 1.2,
-          y: 300 + Math.sin(angle) * (radius * 0.6),
-        },
-        data: { label: trend.substring(0, 40) + '...' },
-      });
-
-      initialEdges.push({
-        id: `edge-trend-center-${index}`,
-        source: `trend-${index}`,
-        target: 'center',
-        animated: true,
-        style: { stroke: '#0ea5e9' }, // Light blue
-      });
+    // STAGE 4: SCORES (X: 1150)
+    initialNodes.push({
+      id: 'score-engagement', type: 'score', position: { x: 1150, y: 150 },
+      data: { label: 'Engagement', value: results.scores.engagement_score }
+    });
+    initialNodes.push({
+      id: 'score-virality', type: 'score', position: { x: 1150, y: 300 },
+      data: { label: 'Virality', value: results.scores.virality_score }
+    });
+    initialNodes.push({
+      id: 'score-controversy', type: 'score', position: { x: 1150, y: 450 },
+      data: { label: 'Controversy', value: results.scores.controversy_score }
     });
 
     return { nodes: initialNodes, edges: initialEdges };
@@ -108,9 +174,11 @@ const SimulationGraph = ({ results, content }) => {
         fitView
         colorMode="dark"
         minZoom={0.5}
+        maxZoom={1.5}
+        attributionPosition="bottom-right"
       >
         <Background color="#ffffff" variant="dots" gap={20} size={1} opacity={0.05} />
-        <Controls showInteractive={false} style={{ display: 'none' }} />
+        <Controls showInteractive={false} />
       </ReactFlow>
     </div>
   );

@@ -7,9 +7,10 @@ from core.config import MCP_SERVER_COMMAND, MCP_SERVER_ARGS, MONGODB_URI
 
 class MCPTrendClient:
     def __init__(self):
-        # The mongodb-mcp-server expects the connection string in MCP_MONGODB_URI
         env = os.environ.copy()
         env["MCP_MONGODB_URI"] = MONGODB_URI
+        env["NODE_NO_WARNINGS"] = "1"
+        env["npm_config_loglevel"] = "silent"
         
         self.server_params = StdioServerParameters(
             command=MCP_SERVER_COMMAND,
@@ -25,6 +26,11 @@ class MCPTrendClient:
         self.stdio, self.write = stdio_transport
         self.session = await self.exit_stack.enter_async_context(ClientSession(self.stdio, self.write))
         await self.session.initialize()
+        
+        try:
+            await self.session.call_tool("connect", {"connectionString": MONGODB_URI})
+        except Exception as e:
+            print(f"MCP MongoDB connect error: {e}")
 
     async def disconnect(self):
         if self.exit_stack:
@@ -35,32 +41,13 @@ class MCPTrendClient:
             return {"error": "Not connected to MCP"}
         
         try:
-            # We list tools to dynamically find the correct query tool
-            tools_response = await self.session.list_tools()
-            tool_names = [t.name for t in tools_response.tools]
-            
-            # The official MongoDB MCP typically uses 'mongodb_read' or 'mongodb_find' or 'find'
-            # We will try a few standard naming conventions
-            tool_to_use = None
-            if "find" in tool_names:
-                tool_to_use = "find"
-            elif "mongodb_read" in tool_names:
-                tool_to_use = "mongodb_read"
-            elif "read" in tool_names:
-                tool_to_use = "read"
-                
-            if tool_to_use:
-                result = await self.session.call_tool(tool_to_use, {
-                    "database": "society_simulator",
-                    "collection": "trends",
-                    "query": {"$text": {"$search": query}},
-                    "limit": 5
-                })
-                return result
-            else:
-                return {
-                    "error": f"Supported tool not found in MCP server. Available tools: {tool_names}"
-                }
+            result = await self.session.call_tool("find", {
+                "database": "society_simulator",
+                "collection": "trends",
+                "filter": {},
+                "limit": 5
+            })
+            return result
         except Exception as e:
             print(f"MCP Tool error: {e}")
             return {"error": str(e)}

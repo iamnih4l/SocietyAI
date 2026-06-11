@@ -16,8 +16,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-simulation_engine = SimulationEngine()
-
 class SimulationRequest(BaseModel):
     content: str
 
@@ -27,6 +25,7 @@ async def simulate(request: SimulationRequest):
         raise HTTPException(status_code=400, detail="Content cannot be empty.")
     
     try:
+        simulation_engine = SimulationEngine()
         result = await simulation_engine.run_simulation(request.content)
         return result
     except Exception as e:

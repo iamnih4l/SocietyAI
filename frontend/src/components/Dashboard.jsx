@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { Play, Activity, TrendingUp, AlertTriangle, Users, Sparkles, Zap } from 'lucide-react';
+import SimulationGraph from './SimulationGraph';
 
 const API_URL = import.meta.env.PROD ? '/api/simulate' : 'http://localhost:8000/api/simulate';
 
@@ -58,6 +59,14 @@ const Dashboard = () => {
 
       {results && (
         <div className="results-grid">
+          
+          {/* Futuristic Node Graph */}
+          <div className="glass-panel fade-in full-width" style={{ padding: '1rem' }}>
+            <h3 style={{ marginBottom: '1rem', paddingLeft: '0.5rem' }}>
+              <Sparkles size={20} color="#0ea5e9" /> Network Propagation Map
+            </h3>
+            <SimulationGraph results={results} content={content} />
+          </div>
           
           {/* Scores Panel */}
           <div className="glass-panel fade-in full-width">

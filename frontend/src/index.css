@@ -266,3 +266,83 @@ ul li::before {
     grid-template-columns: 1fr;
   }
 }
+
+/* React Flow Custom Nodes */
+.react-flow__node {
+  border-radius: 8px;
+}
+
+.custom-node {
+  padding: 15px 20px;
+  border-radius: 12px;
+  background: rgba(15, 23, 42, 0.8);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: white;
+  font-family: 'Inter', sans-serif;
+  text-align: center;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  min-width: 150px;
+  transition: all 0.3s ease;
+}
+
+.custom-node:hover {
+  transform: scale(1.05);
+}
+
+.node-central {
+  border: 2px solid var(--accent-color);
+  box-shadow: 0 0 20px rgba(99, 102, 241, 0.4), inset 0 0 10px rgba(99, 102, 241, 0.2);
+  background: linear-gradient(135deg, rgba(30, 27, 75, 0.9) 0%, rgba(49, 46, 129, 0.8) 100%);
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.node-persona-positive {
+  border: 2px solid var(--success);
+  box-shadow: 0 0 15px rgba(16, 185, 129, 0.3);
+}
+
+.node-persona-negative {
+  border: 2px solid var(--danger);
+  box-shadow: 0 0 15px rgba(239, 68, 68, 0.3);
+}
+
+.node-persona-neutral {
+  border: 2px solid var(--text-secondary);
+  box-shadow: 0 0 15px rgba(148, 163, 184, 0.2);
+}
+
+.node-trend {
+  border: 2px solid #0ea5e9; /* Light blue for trends */
+  box-shadow: 0 0 15px rgba(14, 165, 233, 0.3);
+  background: rgba(8, 47, 73, 0.8);
+}
+
+.node-title {
+  font-weight: 600;
+  margin-bottom: 5px;
+  font-size: 0.9rem;
+}
+
+.node-desc {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.react-flow__edge-path {
+  stroke-width: 2;
+}
+
+/* Make edge animated particles look like flowing energy */
+.react-flow__edge.animated path {
+  stroke-dasharray: 5;
+  animation: dashdraw 1s linear infinite;
+}
+
+@keyframes dashdraw {
+  from {
+    stroke-dashoffset: 10;
+  }
+}

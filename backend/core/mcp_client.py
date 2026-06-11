@@ -1,55 +1,38 @@
-import asyncio
 import os
-from contextlib import AsyncExitStack
-from mcp.client.session import ClientSession
-from mcp.client.stdio import stdio_client, StdioServerParameters
-from core.config import MCP_SERVER_COMMAND, MCP_SERVER_ARGS, MONGODB_URI
+from pymongo import MongoClient
+from core.config import MONGODB_URI
 
-class MCPTrendClient:
+class TrendClient:
     def __init__(self):
-        env = os.environ.copy()
-        env["MCP_MONGODB_URI"] = MONGODB_URI
-        env["NODE_NO_WARNINGS"] = "1"
-        env["npm_config_loglevel"] = "silent"
-        
-        self.server_params = StdioServerParameters(
-            command=MCP_SERVER_COMMAND,
-            args=MCP_SERVER_ARGS,
-            env=env
-        )
-        self.session = None
-        self.exit_stack = None
+        self.client = None
+        self.db = None
+        self.collection = None
 
     async def connect(self):
-        self.exit_stack = AsyncExitStack()
-        stdio_transport = await self.exit_stack.enter_async_context(stdio_client(self.server_params))
-        self.stdio, self.write = stdio_transport
-        self.session = await self.exit_stack.enter_async_context(ClientSession(self.stdio, self.write))
-        await self.session.initialize()
-        
         try:
-            await self.session.call_tool("connect", {"connectionString": MONGODB_URI})
+            # Connect synchronously since serverless functions are ephemeral
+            # and pymongo's default MongoClient is synchronous.
+            self.client = MongoClient(MONGODB_URI)
+            self.db = self.client.society_simulator
+            self.collection = self.db.trends
         except Exception as e:
-            print(f"MCP MongoDB connect error: {e}")
+            print(f"MongoDB connect error: {e}")
 
     async def disconnect(self):
-        if self.exit_stack:
-            await self.exit_stack.aclose()
+        if self.client:
+            self.client.close()
 
     async def search_trends(self, query: str):
-        if not self.session:
-            return {"error": "Not connected to MCP"}
+        if not self.client:
+            # Auto-connect if not connected (useful for serverless)
+            await self.connect()
         
         try:
-            result = await self.session.call_tool("find", {
-                "database": "society_simulator",
-                "collection": "trends",
-                "filter": {},
-                "limit": 5
-            })
-            return result
+            # Query MongoDB directly instead of via MCP
+            results = list(self.collection.find({}, {"_id": 0}).limit(5))
+            return results
         except Exception as e:
-            print(f"MCP Tool error: {e}")
-            return {"error": str(e)}
+            print(f"DB Tool error: {e}")
+            return [{"error": str(e)}]
 
-mcp_client = MCPTrendClient()
+mcp_client = TrendClient()

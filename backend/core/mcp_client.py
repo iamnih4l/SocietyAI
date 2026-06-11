@@ -1,15 +1,20 @@
 import asyncio
+import os
 from contextlib import AsyncExitStack
 from mcp.client.session import ClientSession
 from mcp.client.stdio import stdio_client, StdioServerParameters
-from core.config import MCP_SERVER_COMMAND, MCP_SERVER_ARGS
+from core.config import MCP_SERVER_COMMAND, MCP_SERVER_ARGS, MONGODB_URI
 
 class MCPTrendClient:
     def __init__(self):
+        # The mongodb-mcp-server expects the connection string in MCP_MONGODB_URI
+        env = os.environ.copy()
+        env["MCP_MONGODB_URI"] = MONGODB_URI
+        
         self.server_params = StdioServerParameters(
             command=MCP_SERVER_COMMAND,
             args=MCP_SERVER_ARGS,
-            env=None
+            env=env
         )
         self.session = None
         self.exit_stack = None
@@ -30,23 +35,34 @@ class MCPTrendClient:
             return {"error": "Not connected to MCP"}
         
         try:
-            # Attempting to call MongoDB MCP tool
-            # (MongoDB MCP server tools include operations like find, aggregate, etc.)
-            result = await self.session.call_tool("find", {
-                "collection": "trends",
-                "query": {"$text": {"$search": query}}
-            })
-            return result
+            # We list tools to dynamically find the correct query tool
+            tools_response = await self.session.list_tools()
+            tool_names = [t.name for t in tools_response.tools]
+            
+            # The official MongoDB MCP typically uses 'mongodb_read' or 'mongodb_find' or 'find'
+            # We will try a few standard naming conventions
+            tool_to_use = None
+            if "find" in tool_names:
+                tool_to_use = "find"
+            elif "mongodb_read" in tool_names:
+                tool_to_use = "mongodb_read"
+            elif "read" in tool_names:
+                tool_to_use = "read"
+                
+            if tool_to_use:
+                result = await self.session.call_tool(tool_to_use, {
+                    "database": "society_simulator",
+                    "collection": "trends",
+                    "query": {"$text": {"$search": query}},
+                    "limit": 5
+                })
+                return result
+            else:
+                return {
+                    "error": f"Supported tool not found in MCP server. Available tools: {tool_names}"
+                }
         except Exception as e:
-            # Fallback for hackathon demo if actual DB is empty or connection fails
-            print(f"MCP Tool error or not configured: {e}")
-            return {
-                "status": "fallback",
-                "insights": "Found similar historical patterns.",
-                "trends": [
-                    {"hook": "Storytime...", "virality_factor": "High engagement through narrative."},
-                    {"hook": "Controversial take...", "virality_factor": "Polarizing comments drive algorithm."}
-                ]
-            }
+            print(f"MCP Tool error: {e}")
+            return {"error": str(e)}
 
 mcp_client = MCPTrendClient()

@@ -14,6 +14,13 @@ class TrendIntelligenceAgent:
         query = analysis.get("intent", content[:50])
         mcp_data = await mcp_client.search_trends(query)
         
+        # Parse actual MCP CallToolResult if valid
+        if hasattr(mcp_data, 'content'):
+            try:
+                mcp_data = [item.text for item in mcp_data.content if hasattr(item, 'text')]
+            except Exception:
+                pass
+        
         # 2. Use Gemini to interpret MCP data + content
         prompt = f"""
         You are the Trend Intelligence Agent.

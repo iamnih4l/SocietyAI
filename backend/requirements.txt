@@ -5,3 +5,4 @@ pydantic
 mcp
 python-dotenv
 httpx
+pymongo

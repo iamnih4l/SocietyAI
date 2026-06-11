@@ -40,9 +40,6 @@ class SimulationEngine:
         }
 
     async def run_simulation(self, content: str):
-        # Ensure MCP is connected
-        if mcp_client.session is None:
-            await mcp_client.connect()
 
         # Execute 1 single Master LLM call
         result = await self.master_agent.run_all(content)

@@ -1,24 +1,14 @@
-from agents.planner import PlannerAgent
-from agents.personas import PersonasAgent
-from agents.trend_intelligence import TrendIntelligenceAgent
-from agents.risk_safety import RiskSafetyAgent
-from agents.optimization import OptimizationAgent
+from agents.master_agent import MasterAgent
 from core.mcp_client import mcp_client
 
 class SimulationEngine:
     def __init__(self):
-        self.planner = PlannerAgent()
-        self.personas_agent = PersonasAgent()
-        self.trend_agent = TrendIntelligenceAgent()
-        self.risk_agent = RiskSafetyAgent()
-        self.optimization_agent = OptimizationAgent()
+        self.master_agent = MasterAgent()
 
     def compute_scores(self, personas, risk_data):
         # Base scores
         engagement = 0
         virality = 0
-        
-        positive_actions = ["like", "share", "comment"]
         
         # Calculate based on personas
         for p in personas:
@@ -54,30 +44,18 @@ class SimulationEngine:
         if mcp_client.session is None:
             await mcp_client.connect()
 
-        # 1. Planner
-        analysis = self.planner.analyze(content)
+        # Execute 1 single Master LLM call
+        result = await self.master_agent.run_all(content)
 
-        # 2. Personas (async)
-        personas = await self.personas_agent.run_all(content, analysis)
-
-        # 3. Trends (MCP)
-        trends = await self.trend_agent.analyze_trends(content, analysis)
-
-        # 4. Risk
-        risk_data = self.risk_agent.analyze_risk(content)
-
-        # 5. Compute Scores
-        scores = self.compute_scores(personas, risk_data)
-
-        # 6. Optimization
-        optimization = self.optimization_agent.optimize(content, analysis, personas, trends, risk_data)
+        # Compute Scores
+        scores = self.compute_scores(result.get("persona_reactions", []), result.get("risk_analysis", {}))
 
         return {
-            "content_analysis": analysis,
-            "persona_reactions": personas,
-            "mcp_trend_insights": trends,
+            "content_analysis": result.get("content_analysis", {}),
+            "persona_reactions": result.get("persona_reactions", []),
+            "mcp_trend_insights": result.get("mcp_trend_insights", {}),
             "scores": scores,
-            "risk_analysis": risk_data,
-            "suggestions": optimization.get("suggestions", []),
-            "optimized_content": optimization.get("optimized_content", "")
+            "risk_analysis": result.get("risk_analysis", {}),
+            "suggestions": result.get("optimization", {}).get("suggestions", []),
+            "optimized_content": result.get("optimization", {}).get("optimized_content", "")
         }

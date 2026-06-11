@@ -101,42 +101,59 @@ The **Trend Intelligence Agent** uses the MCP client to dynamically query the Mo
 ## 🛠️ Setup Instructions
 
 ### Prerequisites
-- Python 3.10+
+- Git
 - Node.js 18+
-- Gemini API Key
-- MongoDB Cluster (for MCP)
+- Python 3.10+
+- A Google Gemini API Key (Get it [here](https://aistudio.google.com/app/apikey))
+- A MongoDB Cluster (Free tier on [MongoDB Atlas](https://www.mongodb.com/cloud/atlas/register))
 
-### Backend Setup
+### 1. Clone the Repository
 ```bash
-# 1. Navigate to backend
+git clone https://github.com/iamnih4l/SocietyAI.git
+cd SocietyAI
+```
+
+### 2. Backend Setup & Configuration
+```bash
+# Navigate to backend
 cd backend
 
-# 2. Create virtual environment
+# Create and activate virtual environment
 python -m venv venv
+# On Windows:
+.\venv\Scripts\activate  
+# On Mac/Linux:
+source venv/bin/activate
 
-# 3. Activate
-.\venv\Scripts\activate  # Windows
-source venv/bin/activate # Mac/Linux
-
-# 4. Install dependencies
+# Install dependencies
 pip install -r requirements.txt
+```
 
-# 5. Configure environment variables (copy .env.example)
-# Add GEMINI_API_KEY and MONGODB_URI
+**Configure Environment Variables:**
+Create a `.env` file in the `backend/` directory and add your credentials:
+```env
+# Get this from Google AI Studio
+GEMINI_API_KEY="your_gemini_api_key_here"
 
-# 6. Run the server
+# Get this from MongoDB Atlas (Replace <password> and remove +srv if using local)
+MONGODB_URI="mongodb+srv://username:password@cluster.mongodb.net/"
+```
+
+**Run the Backend Server:**
+```bash
 fastapi dev main.py
 ```
 
-### Frontend Setup
+### 3. Frontend Setup
+Open a new terminal window:
 ```bash
-# 1. Navigate to frontend
+# Navigate to frontend
 cd frontend
 
-# 2. Install dependencies
+# Install dependencies
 npm install
 
-# 3. Start dev server
+# Start dev server
 npm run dev
 ```
 

@@ -85,7 +85,7 @@ const SimulationGraph = ({ results, content }) => {
       id: 'database',
       type: 'database',
       position: { x: 0, y: 400 },
-      data: { trends: results.mcp_trend_insights.similar_viral_patterns || [] },
+      data: { trends: results?.mcp_trend_insights?.similar_viral_patterns || [] },
     });
 
     // STAGE 2: ENGINE (X: 350)
@@ -93,7 +93,7 @@ const SimulationGraph = ({ results, content }) => {
       id: 'engine',
       type: 'engine',
       position: { x: 350, y: 250 },
-      data: { analysis: results.content_analysis },
+      data: { analysis: results?.content_analysis || {} },
     });
 
     // Connect Inputs to Engine
@@ -107,11 +107,11 @@ const SimulationGraph = ({ results, content }) => {
     });
 
     // STAGE 3: PERSONAS (X: 750)
-    const numPersonas = results.persona_reactions.length;
+    const personaReactions = results?.persona_reactions || [];
     const startY = 50;
     const spacingY = 120;
 
-    results.persona_reactions.forEach((reaction, index) => {
+    personaReactions.forEach((reaction, index) => {
       const pId = `persona-${index}`;
       const color = reaction.sentiment === 'positive' ? '#10b981' : reaction.sentiment === 'negative' ? '#ef4444' : '#94a3b8';
       
@@ -151,15 +151,15 @@ const SimulationGraph = ({ results, content }) => {
     // STAGE 4: SCORES (X: 1150)
     initialNodes.push({
       id: 'score-engagement', type: 'score', position: { x: 1150, y: 150 },
-      data: { label: 'Engagement', value: results.scores.engagement_score }
+      data: { label: 'Engagement', value: results?.scores?.engagement_score || 0 }
     });
     initialNodes.push({
       id: 'score-virality', type: 'score', position: { x: 1150, y: 300 },
-      data: { label: 'Virality', value: results.scores.virality_score }
+      data: { label: 'Virality', value: results?.scores?.virality_score || 0 }
     });
     initialNodes.push({
       id: 'score-controversy', type: 'score', position: { x: 1150, y: 450 },
-      data: { label: 'Controversy', value: results.scores.controversy_score }
+      data: { label: 'Controversy', value: results?.scores?.controversy_score || 0 }
     });
 
     return { nodes: initialNodes, edges: initialEdges };

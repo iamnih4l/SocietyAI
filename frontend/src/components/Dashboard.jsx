@@ -74,19 +74,19 @@ const Dashboard = () => {
             <div className="scores-container">
               <div>
                 <div className="score-circle score-engagement">
-                  {results.scores.engagement_score}
+                  {results?.scores?.engagement_score || 0}
                 </div>
                 <div className="score-label">Engagement</div>
               </div>
               <div>
                 <div className="score-circle score-virality">
-                  {results.scores.virality_score}
+                  {results?.scores?.virality_score || 0}
                 </div>
                 <div className="score-label">Virality</div>
               </div>
               <div>
                 <div className="score-circle score-controversy">
-                  {results.scores.controversy_score}
+                  {results?.scores?.controversy_score || 0}
                 </div>
                 <div className="score-label">Controversy</div>
               </div>
@@ -107,7 +107,7 @@ const Dashboard = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {results.persona_reactions.map((p, idx) => (
+                  {(results?.persona_reactions || []).map((p, idx) => (
                     <tr key={idx}>
                       <td style={{ fontWeight: 500 }}>{p.persona}</td>
                       <td>
@@ -128,10 +128,10 @@ const Dashboard = () => {
           <div className="glass-panel fade-in">
             <h3><TrendingUp size={20} color="var(--success)" /> Viral Trends (MCP)</h3>
             <ul>
-              {results.mcp_trend_insights.similar_viral_patterns?.map((item, i) => (
+              {(results?.mcp_trend_insights?.similar_viral_patterns || []).map((item, i) => (
                 <li key={i}>{item}</li>
               ))}
-              {results.mcp_trend_insights.engagement_observations?.map((item, i) => (
+              {(results?.mcp_trend_insights?.engagement_observations || []).map((item, i) => (
                 <li key={`obs-${i}`}>{item}</li>
               ))}
             </ul>
@@ -140,14 +140,14 @@ const Dashboard = () => {
           {/* Risk Analysis */}
           <div className="glass-panel fade-in">
             <h3><AlertTriangle size={20} color="var(--warning)" /> Risk & Safety</h3>
-            {results.risk_analysis.potential_issues.length === 0 && results.risk_analysis.safety_flags.length === 0 ? (
+            {(!results?.risk_analysis?.potential_issues?.length && !results?.risk_analysis?.safety_flags?.length) ? (
               <p style={{ color: 'var(--success)' }}>No significant risks detected.</p>
             ) : (
               <ul>
-                {results.risk_analysis.potential_issues?.map((item, i) => (
+                {(results?.risk_analysis?.potential_issues || []).map((item, i) => (
                   <li key={i} style={{ color: 'var(--warning)' }}>{item}</li>
                 ))}
-                {results.risk_analysis.safety_flags?.map((item, i) => (
+                {(results?.risk_analysis?.safety_flags || []).map((item, i) => (
                   <li key={`flag-${i}`} style={{ color: 'var(--danger)' }}>{item}</li>
                 ))}
               </ul>
@@ -158,7 +158,7 @@ const Dashboard = () => {
           <div className="glass-panel fade-in">
             <h3><Zap size={20} color="var(--accent-color)" /> Optimization Suggestions</h3>
             <ul>
-              {results.suggestions?.map((item, i) => (
+              {(results?.suggestions || []).map((item, i) => (
                 <li key={i}>{item}</li>
               ))}
             </ul>

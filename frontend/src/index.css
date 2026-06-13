@@ -365,3 +365,110 @@ ul li::before {
     stroke-dashoffset: 10;
   }
 }
+
+/* ASL Interpreter Widget */
+.asl-widget {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  width: 300px;
+  background: var(--panel-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--accent-color);
+  border-radius: 16px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5), 0 0 20px rgba(99, 102, 241, 0.2);
+  z-index: 9999;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.asl-widget-header {
+  background: linear-gradient(90deg, rgba(99, 102, 241, 0.2), transparent);
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--panel-border);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #fff;
+  font-size: 0.9rem;
+}
+
+.asl-widget-body {
+  padding: 1.5rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+  flex-direction: column;
+}
+
+.asl-placeholder {
+  color: var(--text-secondary);
+  text-align: center;
+  font-size: 0.9rem;
+  font-style: italic;
+}
+
+.asl-fingerspell, .asl-glossary {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.asl-fingerspell img, .asl-glossary img {
+  width: 150px;
+  height: 150px;
+  object-fit: contain;
+  border-radius: 8px;
+  background: #fff;
+  padding: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+.asl-space {
+  width: 150px;
+  height: 150px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  color: var(--text-secondary);
+  background: rgba(255,255,255,0.05);
+  border-radius: 8px;
+}
+
+.asl-word-label {
+  font-size: 1.25rem;
+  letter-spacing: 0.2em;
+  font-weight: 700;
+  display: flex;
+  gap: 0.2em;
+}
+
+.asl-word-label .active-letter {
+  color: var(--accent-color);
+  text-shadow: 0 0 10px rgba(99, 102, 241, 0.5);
+  transform: scale(1.2);
+  transition: all 0.2s ease;
+}
+
+/* Hoverable Text Interaction */
+.asl-hoverable {
+  cursor: pointer;
+  border-bottom: 1px dotted transparent;
+  transition: all 0.2s;
+  display: inline-block;
+  padding: 0 0.1em;
+  margin: 0 0.1em;
+  border-radius: 4px;
+}
+
+.asl-hoverable:hover {
+  background: rgba(99, 102, 241, 0.2);
+  border-bottom: 1px dotted var(--accent-color);
+  color: #fff;
+}
